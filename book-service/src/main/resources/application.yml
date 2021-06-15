@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: BOOK-SERVICE
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/auth/realms/book-service
+  data:
+    rest:
+      base-path: /api
+
+  h2: 
+    console: 
+      path: /h2
+      enabled: true
+
+  datasource:
+    url: jdbc:h2:mem:bookdb;
+    driverClassName: org.h2.Driver
+    username: sa
+    password: 
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+
+server:
+  port: 8083
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
