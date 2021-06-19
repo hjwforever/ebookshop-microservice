@@ -1,0 +1,14 @@
+
+If you don’t have any software product development project, you can finish this homework by following project.
+Airplane Ticket Distribution software test cases design.	
+
+          Suppose you are to design a ticket distributor software for one airplane company in Beijing. In the software development process, the use case for purchasing tickets is already written and accepted by the client. It describes a "normal" interaction between a Passenger and the Distributor:
+Flow of events:		
+     1. Passenger selects a number of zones to be traveled. If he presses multiple zone buttons, Distributor only considers the last button pressed.
+     2. The Distributor displays the amount due.
+     3. The Passenger inserts money.
+     4. If the Passenger selects a new zone before inserting sufficient money, the Distributor returns all coins and bills already inserted.
+     5. If Passenger inserted more money than the amount due, the Distributor returns excess change.
+     6. The Distributor issues the ticket.
+     7. The Passenger picks up the change and the ticket.
+Exit condition: The Passenger has picked up the selected ticket.

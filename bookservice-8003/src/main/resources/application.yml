@@ -1,0 +1,111 @@
+server:
+  tomcat:
+    max-connections: 200
+  port: ${port:8003}
+
+ebookshop:
+  title: E-Book Shop
+  rows_per_page: 10
+  file:
+    filePrefix: static/uploadFile/
+    staticAccessPath: /api/file/**
+    #file.uploadFolder=/root/uploadFiles/
+    uploadFolder: d://uploadFiles/
+  app:
+    jwtSecret: ebookshop_security_ddd
+    jwtExpirationMs: 86400000
+    jwtRefreshExpirationMs: 604800000
+  appid: CyF9Q1Ug9LkqeKsK32cHqNE3-gzGzoHsz
+  appKey: RpP6VQSp0Y4R9wEWXLwVLtFE
+  appUrl:
+
+# ===== SpringDoc配置 =====#
+springdoc:
+  swagger-ui:
+    path: /springdoc/index.html
+    docExpansion: none
+    displayRequestDuration: true
+    showExtensions: true
+    showCommonExtensions: true
+    disable-swagger-default-url: true
+  api-docs:
+    enabled: true
+    path: /springdoc/api-docs
+    resolve-schema-properties: true
+  writer-with-default-pretty-printer: true
+
+# ===== swagger配置 =====#
+swagger:
+  application-name: ${spring.application.name}
+  application-version: 1.0
+  application-description: This is E-BookShop's Spring Boot RESTful service using springdoc-openapi and OpenAPI 3.
+  try-host: http://localhost:${server.port}
+
+spring:
+  application:
+    name: BookService
+  servlet:
+    ## 上传文件大小设置
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  ## Thymeleaf
+  thymeleaf:
+    cache: false
+    mode: HTML
+    encoding: UTF-8
+    servlet:
+      content-type: text/html
+  ## JPA
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  datasource:
+    name: testdb
+    url: jdbc:mysql://localhost:3306/ebookshop?useUnicode=true&serverTimezone=Asia/Shanghai&characterEncoding=utf8&autoReconnect=true&useSSL=false&allowMultiQueries=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    initialization-mode: always
+# Alibaba Druid connector pool
+    druid:
+      initial-size: 10
+      max-active: 50
+      min-idle: 10
+      max-wait: 60000
+      query-timeout: 10
+      pool-prepared-statements: true
+      max-open-prepared-statements: 20
+      test-on-borrow: false
+      test-on-return: false
+      test-while-idle: true
+      asyncInit: true
+      filters: stat,wall # WebStatFilter
+      web-stat-filter.enabled: true
+      web-stat-filter.url-pattern: /*
+      web-stat-filter.exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*'
+      web-stat-filter.session-stat-enable: true
+      web-stat-filter.profile-enable: true # StatViewServlet druid
+      stat-view-servlet:
+        enabled: true
+        login-username: admin
+        login-password: 123
+        reset-enable: false
+        allow:
+        deny:
+
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:7001/eureka
+  instance:
+    instance-id: bookservice-8003
+    hostname: localhost
+    prefer-ip-address: true
