@@ -5,7 +5,7 @@
 
 	<parent>
 		<groupId>com.aruoxi.microservice</groupId>
-		<artifactId>ebookshop-microservice</artifactId>
+		<artifactId>com.aruoxi.ebookshop-microservice</artifactId>
 		<version>1.0.0</version>
 		        <relativePath/> <!-- lookup parent from repository -->
 	</parent>
@@ -19,7 +19,6 @@
 
 	<properties>
 		<java.version>1.8</java.version>
-		<spring-cloud.version>2020.0.2</spring-cloud.version>
 	</properties>
 
 	<dependencies>
@@ -33,7 +32,6 @@
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>${spring-cloud.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

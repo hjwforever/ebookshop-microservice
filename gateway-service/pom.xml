@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.aruoxi.microservice</groupId>
-        <artifactId>ebookshop-microservice</artifactId>
+        <artifactId>com.aruoxi.ebookshop-microservice</artifactId>
         <version>1.0.0</version>
         <!--        <relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
     </parent>
