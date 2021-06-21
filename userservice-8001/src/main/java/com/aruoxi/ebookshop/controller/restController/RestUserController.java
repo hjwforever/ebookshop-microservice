@@ -13,10 +13,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -45,11 +42,11 @@ public class RestUserController {
 //    return CommonResult.success(users);
 //  }
 
-  @GetMapping("/info")
+  @GetMapping("/info/{token}")
   @Operation(summary = "获取个人信息",
       description = "更具获取个人信息",
       security = @SecurityRequirement(name = "至少需要用户身份"))
-  private CommonResult<UserInfo> getUserInfo(HttpServletRequest request, @RequestParam String token) {
+  private CommonResult<UserInfo> getUserInfo( @PathVariable(value = "token") @RequestParam String token) {
     String name = jwtUtils.getUserNameFromJwtToken(token);
     User user = userService.findUser(name);
     UserInfo userInfo = new UserInfo(user);

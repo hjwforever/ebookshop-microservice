@@ -7,6 +7,7 @@ import com.aruoxi.ebookshop.controller.dto.BookSearchDto;
 import com.aruoxi.ebookshop.controller.dto.BookUploadDto;
 import com.aruoxi.ebookshop.controller.restController.dto.BookContent;
 import com.aruoxi.ebookshop.controller.restController.dto.BookPage;
+import com.aruoxi.ebookshop.controller.restController.dto.FileDto;
 import com.aruoxi.ebookshop.domain.Book;
 import com.aruoxi.ebookshop.exception.ResourceNotFoundException;
 import com.aruoxi.ebookshop.repository.BookRepository;
@@ -79,6 +80,7 @@ public class RestBookController {
     // 分页查询指定条件的所有书籍
     @GetMapping
     @Operation(summary = "分页书籍列表", description = "根据BookSearchDto查询书籍")
+    @HystrixCommand(fallbackMethod = "findAllHystrix")
     public CommonResult<Page<Book>> findAll(@RequestBody BookSearchDto search) {
         log.info("search = " + search);
         Integer pageNum = search.getPageNum();
@@ -87,6 +89,13 @@ public class RestBookController {
         Boolean canRead = search.getCanRead();
 
         return CommonResult.success(bookService.findPage(new BookSearchDto(bookName, pageNum, pageSize, canRead)));
+    }
+
+    //备选方案
+    public CommonResult<Page<Book>> findAllHystrix(@RequestBody BookSearchDto search){
+
+        Page<Book> bookPage=null;
+        return CommonResult.success(bookPage);
     }
 
 
@@ -234,20 +243,22 @@ public class RestBookController {
     @Operation(summary = "上传书籍",
         description = "上传书籍",
         security = @SecurityRequirement(name = "需要admin权限"))
-    public CommonResult upload(HttpServletRequest request, MultipartFile uploadFile,
+    public CommonResult upload(FileDto fileDto
+//            MultipartFile uploadFile,
 //        , @RequestParam(value = "bookName", required = false) String bookName, @RequestParam(value = "bookAuthor", required = false) String bookAuthor, @RequestBody JSONPObject jsonpObject
-                               BookUploadDto uploadBookInfo) throws Exception {
+//                               BookUploadDto uploadBookInfo
+    ) throws Exception {
 //        log.info("jsonpObject = " + jsonpObject);
 
         // 如果文件不为空，写入上传路径
-        if (!uploadFile.isEmpty()) {
+        if (!fileDto.getUploadFile().isEmpty()) {
             // 获取资源目录
 
 //            String uploadFilePath = this.getServletContext().getRealPath("/WEB-INF/upload");
 //            log.info("uploadFilePath = " + uploadFilePath);
-            String bookName = uploadBookInfo.getBookName();
-            String bookAuthor = uploadBookInfo.getAuthor();
-            Float price = uploadBookInfo.getPrice();
+            String bookName = fileDto.getUploadBookInfo().getBookName();
+            String bookAuthor = fileDto.getUploadBookInfo().getAuthor();
+            Float price = fileDto.getUploadBookInfo().getPrice();
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd/");
             //构建文件上传所要保存的"文件夹路径"--这里是相对路径，保存到项目根路径的文件夹下
@@ -264,7 +275,7 @@ public class RestBookController {
             }
 
             // 获取原始的名字  original:最初的，起始的  方法是得到原来的文件名在客户机的文件系统名称
-            String oldName = uploadFile.getOriginalFilename();
+            String oldName = fileDto.getUploadFile().getOriginalFilename();
             // 第一个.前的名字
             String OriginalFilename = oldName.substring(0, oldName.indexOf('.'));
             LOG.info("-----------文件原始的名字【" + oldName + "】-----------");
@@ -281,7 +292,7 @@ public class RestBookController {
                 // 上传云端
 //                Map<String, Object> meta = new HashMap<String, Object>();
 //                meta.put("mime_type", "text/plain");
-                AVFile cloudFile = new AVFile(oldName, uploadFile.getBytes());
+                AVFile cloudFile = new AVFile(oldName, fileDto.getUploadFile().getBytes());
                 cloudFile.setMimeType("text/plain");
                 cloudFile.saveInBackground(true).subscribe(new Observer<AVFile>() {
 
@@ -308,7 +319,7 @@ public class RestBookController {
                 //构建真实的文件路径
                 File newFile = new File(file.getAbsolutePath() + File.separator + newName);
                 //转存文件到指定路径，如果文件名重复的话，将会覆盖掉之前的文件,这里是把文件上传到 “绝对路径”
-                uploadFile.transferTo(newFile);
+                fileDto.getUploadFile().transferTo(newFile);
 //                String filePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/uploadFile/" + format + newName;
 //                String filePath = (file.getCanonicalPath() + "/" + newName).replace('\\','/');
                 String filePath = (file.getPath() + File.separator + newName);
@@ -393,11 +404,13 @@ public class RestBookController {
 
     @PreAuthorize("hasAnyRole('USER','ADMIN','SELLER')")
     @RequestMapping(value = "/download")
-    public ResponseEntity<byte[]> download1(HttpServletRequest request,
-                                            @RequestHeader("User-Agent") String userAgent,
-                                            @RequestParam("bookId") Integer bookId) throws Exception {
-        LOG.info("userAgent = " + userAgent);
-        Book book = bookRepository.findById(bookId.longValue()).orElse(null);
+    public ResponseEntity<byte[]> download1(@RequestBody FileDto fileDto
+//            HttpServletRequest request,
+//                                            @RequestHeader("User-Agent") String userAgent,
+//                                            @RequestParam("bookId") Integer bookId
+    ) throws Exception {
+        LOG.info("userAgent = " + fileDto.getUserAgent());
+        Book book = bookRepository.findById(fileDto.getBookId().longValue()).orElse(null);
         if (book == null) {
             byte[] a = new byte[100];
             return new ResponseEntity<byte[]>(a,HttpStatus.NOT_FOUND);
@@ -428,7 +441,7 @@ public class RestBookController {
         filename = URLEncoder.encode(filename, "UTF-8");
         // 设置实际的响应文件名，告诉浏览器文件要用于【下载】、【保存】attachment 以附件形式
         // 不同的浏览器，处理方式不同，要根据浏览器版本进行区别判断
-        if (userAgent.indexOf("MSIE") > 0) {
+        if (fileDto.getUserAgent().indexOf("MSIE") > 0) {
             // 如果是IE，只需要用UTF-8字符集进行URL编码即可
             builder.header("Content-Disposition", "attachment; filename=" + filename);
         } else {
@@ -445,9 +458,8 @@ public class RestBookController {
         security = @SecurityRequirement(name = "需要登录"))
     @GetMapping(value = "/content")
     @Hidden
-    public CommonResult<String> findContent(BookSearchDto search) throws IOException {
-        int pageNum = search.getPageNum();
-        return CommonResult.success(bookService.getbookContent(search.getBookId(),pageNum));
+    public CommonResult<String> findContent(@PathVariable(value = "pageNum")int pageNum,@PathVariable(value = "BookId") Long BookId) throws IOException {
+        return CommonResult.success(bookService.getbookContent(BookId,pageNum));
     }
 
 }

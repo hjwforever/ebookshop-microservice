@@ -5,44 +5,41 @@ spring:
     allow-bean-definition-overriding: true
   cloud:
     gateway:
-      default-filters:
-        - TokenRelay=
-      metrics:
-        enabled: true
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
+#      default-filters:
+#        - TokenRelay=
+#      metrics:
+#        enabled: true
+#      discovery:
+#        locator:
+#          enabled: true
+#          lower-case-service-id: true
       routes:
-        - id: BOOK-SERVICE
-          uri: lb://BOOK-SERVICE
+        - id: CONSUMER
+          uri: lb://CONSUMER
+#          uri: http://localhost:8081/consumer
           predicates:
-            - Path=/api/books/**
-        - id: USER-SERVICE
-          uri: lb://USER-SERVICE
-          predicates:
-            - Path=/api/users/**
+            - Path=/consumer/**
             #        - id: SHOPPING-CART-SERVICE
             #          uri: lb://SHOPPING-CART-SERVICE
             #          predicates:
             #            - Path=/api/cart/**
 
-  security:
-    oauth2:
-      client:
-        provider:
-          keycloak:
-            issuer-uri: http://localhost:8180/auth/realms/book-service
-        registration:
-          spring-gateway:
-            authorization-grant-type: authorization_code
-            client-id: spring-gateway
-            client-secret: 8baaec35-2fae-42ff-a0d2-335aefdf6c5a
-            provider: keycloak
-            redirect-uri: http://localhost:8080/login/oauth2/code/spring-gateway
-      resourceserver:
-        jwt:
-          jwk-set-uri: http://localhost:8180/auth/realms/book-service/protocol/openid-connect/certs
+#  security:
+#    oauth2:
+#      client:
+#        provider:
+#          keycloak:
+#            issuer-uri: http://localhost:8180/auth/realms/book-service
+#        registration:
+#          spring-gateway:
+#            authorization-grant-type: authorization_code
+#            client-id: spring-gateway
+#            client-secret: 8baaec35-2fae-42ff-a0d2-335aefdf6c5a
+#            provider: keycloak
+#            redirect-uri: http://localhost:8080/login/oauth2/code/spring-gateway
+#      resourceserver:
+#        jwt:
+#          jwk-set-uri: http://localhost:8180/auth/realms/book-service/protocol/openid-connect/certs
 
 server:
   port: 8080
@@ -52,7 +49,7 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://localhost:7001/eureka
   instance:
     hostname: localhost
     prefer-ip-address: true

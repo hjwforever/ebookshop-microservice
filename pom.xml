@@ -23,7 +23,8 @@
 		<module>userservice-8001</module>
         <module>bookservice-8002</module>
         <module>bookservice-8003</module>
-    </modules>
+		<module>bookservice-8004</module>
+	</modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
