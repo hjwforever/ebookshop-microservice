@@ -42,11 +42,11 @@ public class RestUserController {
 //    return CommonResult.success(users);
 //  }
 
-  @GetMapping("/info/{token}")
+  @GetMapping("/info")
   @Operation(summary = "获取个人信息",
       description = "更具获取个人信息",
       security = @SecurityRequirement(name = "至少需要用户身份"))
-  private CommonResult<UserInfo> getUserInfo( @PathVariable(value = "token") @RequestParam String token) {
+  private CommonResult<UserInfo> getUserInfo(@RequestParam String token) {
     String name = jwtUtils.getUserNameFromJwtToken(token);
     User user = userService.findUser(name);
     UserInfo userInfo = new UserInfo(user);

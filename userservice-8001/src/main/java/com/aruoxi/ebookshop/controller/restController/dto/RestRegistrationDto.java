@@ -43,6 +43,9 @@ public class RestRegistrationDto {
     @Schema(description = "角色数组", type = "Array")
     private Set<String> roles;
 
+    public RestRegistrationDto() {
+    }
+
     public RestRegistrationDto(@NotEmpty @Size(min = 4, max = 20) String username, @Email @NotEmpty String email, @NotEmpty @Size(min = 6, max = 16) String password, Set<String> roles) {
         this.username = username;
         this.email = email;

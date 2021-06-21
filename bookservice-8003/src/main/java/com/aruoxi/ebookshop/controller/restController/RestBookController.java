@@ -35,12 +35,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -69,19 +68,11 @@ public class RestBookController {
     @Resource
     private RegexUtil regexUtil;
 
-    public static CommonResult getBookUrl(@RequestParam("bookId") Long bookId, BookRepository bookRepository) {
-        Book book = bookRepository.findById(bookId).orElse(null);
-        if (book != null) {
-            return CommonResult.success(book.getBookUrl());
-        }
-        return CommonResult.fail(HttpStatus.NOT_FOUND,HttpStatus.NOT_FOUND.getReasonPhrase());
-    }
-
     // 分页查询指定条件的所有书籍
     @GetMapping
     @Operation(summary = "分页书籍列表", description = "根据BookSearchDto查询书籍")
     @HystrixCommand(fallbackMethod = "findAllHystrix")
-    public CommonResult<Page<Book>> findAll(@RequestBody BookSearchDto search) {
+    public CommonResult<Page<Book>> findAll(BookSearchDto search) {
         log.info("search = " + search);
         Integer pageNum = search.getPageNum();
         Integer pageSize = search.getPageSize();
@@ -92,7 +83,7 @@ public class RestBookController {
     }
 
     //备选方案
-    public CommonResult<Page<Book>> findAllHystrix(@RequestBody BookSearchDto search){
+    public CommonResult<Page<Book>> findAllHystrix(BookSearchDto search){
 
         Page<Book> bookPage=null;
         return CommonResult.success(bookPage);
@@ -229,8 +220,8 @@ public class RestBookController {
     @PreAuthorize("hasRole('SELLER') or hasRole('ADMIN')")
     @PostMapping
     @Operation(summary = "保存书籍的实体",
-            description = "上传新增书籍",
-            security = @SecurityRequirement(name = "需要admin权限"))
+        description = "上传新增书籍",
+        security = @SecurityRequirement(name = "需要admin权限"))
     public CommonResult<Object> add(@RequestBody Book book) {
         bookService.save(book);
         return CommonResult.success(book);
@@ -241,8 +232,8 @@ public class RestBookController {
     @PostMapping(value = "/upload")
     @ResponseBody
     @Operation(summary = "上传书籍",
-            description = "上传书籍",
-            security = @SecurityRequirement(name = "需要admin权限"))
+        description = "上传书籍",
+        security = @SecurityRequirement(name = "需要admin权限"))
     public CommonResult upload(FileDto fileDto
 //            MultipartFile uploadFile,
 //        , @RequestParam(value = "bookName", required = false) String bookName, @RequestParam(value = "bookAuthor", required = false) String bookAuthor, @RequestBody JSONPObject jsonpObject
@@ -376,8 +367,8 @@ public class RestBookController {
     @PreAuthorize("hasAnyRole('SELLER','ADMIN')")
     @PutMapping
     @Operation(summary = "修改书籍",
-            description = "修改书籍",
-            security = @SecurityRequirement(name = "需要admin权限"))
+        description = "修改书籍",
+        security = @SecurityRequirement(name = "需要admin权限"))
     public CommonResult<Object> update(@RequestBody Book book) {
         bookService.save(book);
         return CommonResult.success();
@@ -386,23 +377,25 @@ public class RestBookController {
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(path = "/{id}")
     @Operation(summary = "删除书籍",
-            description = "根据id删除书籍",
-            security = @SecurityRequirement(name = "需要admin权限"))
+        description = "根据id删除书籍",
+        security = @SecurityRequirement(name = "需要admin权限"))
     public void delete(@PathVariable("id") Long id) {
         bookService.delete(id);
     }
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN','SELLER')")
+//    @PreAuthorize("hasAnyRole('USER','ADMIN','SELLER')")
     @ResponseBody
     @RequestMapping(value = "/downloadUrl", method = RequestMethod.GET)
     @Hidden
-    public CommonResult download(HttpServletRequest request,
-                                 @RequestHeader("User-Agent") String userAgent,
-                                 @RequestParam("bookId") Long bookId) throws Exception {
-        return getBookUrl(bookId, bookRepository);
+    public CommonResult download(@RequestParam("bookId") Long bookId) throws Exception {
+        Book book = bookRepository.findById(bookId).orElse(null);
+        if (book != null) {
+            return CommonResult.success(book.getBookUrl());
+        }
+        return CommonResult.fail(HttpStatus.NOT_FOUND,HttpStatus.NOT_FOUND.getReasonPhrase());
     }
 
-    @PreAuthorize("hasAnyRole('USER','ADMIN','SELLER')")
+//    @PreAuthorize("hasAnyRole('USER','ADMIN','SELLER')")
     @RequestMapping(value = "/download")
     public ResponseEntity<byte[]> download1(@RequestBody FileDto fileDto
 //            HttpServletRequest request,
@@ -429,33 +422,41 @@ public class RestBookController {
         LOG.info("File.separator= " + File.separator);
         LOG.info(filename);
 //      File file = new File(path + File.separator + filename);
-        File file = new File(path);
-        log.info("fielPath= " + file.getCanonicalPath());
-        // ok表示Http协议中的状态 200
-        ResponseEntity.BodyBuilder builder = ResponseEntity.ok();
-        // 内容长度
-        builder.contentLength(file.length());
-        // application/octet-stream ： 二进制流数据（最常见的文件下载）。
-        builder.contentType(MediaType.APPLICATION_OCTET_STREAM);
-        // 使用URLDecoder.decode对文件名进行解码
-        filename = URLEncoder.encode(filename, "UTF-8");
-        // 设置实际的响应文件名，告诉浏览器文件要用于【下载】、【保存】attachment 以附件形式
-        // 不同的浏览器，处理方式不同，要根据浏览器版本进行区别判断
-        if (fileDto.getUserAgent().indexOf("MSIE") > 0) {
-            // 如果是IE，只需要用UTF-8字符集进行URL编码即可
-            builder.header("Content-Disposition", "attachment; filename=" + filename);
-        } else {
-            // 而FireFox、Chrome等浏览器，则需要说明编码的字符集
-            // 注意filename后面有个*号，在UTF-8后面有两个单引号！
-            builder.header("Content-Disposition", "attachment; filename*=UTF-8''" + filename);
+        try {
+            File file = new File(path);
+            log.info("fielPath= " + file.getCanonicalPath());
+            // ok表示Http协议中的状态 200
+            ResponseEntity.BodyBuilder builder = ResponseEntity.ok();
+            // 内容长度
+            builder.contentLength(file.length());
+            // application/octet-stream ： 二进制流数据（最常见的文件下载）。
+            builder.contentType(MediaType.APPLICATION_OCTET_STREAM);
+            // 使用URLDecoder.decode对文件名进行解码
+            filename = URLEncoder.encode(filename, "UTF-8");
+            // 设置实际的响应文件名，告诉浏览器文件要用于【下载】、【保存】attachment 以附件形式
+            // 不同的浏览器，处理方式不同，要根据浏览器版本进行区别判断
+            if (fileDto.getUserAgent().indexOf("MSIE") > 0) {
+                // 如果是IE，只需要用UTF-8字符集进行URL编码即可
+                builder.header("Content-Disposition", "attachment; filename=" + filename);
+            } else {
+                // 而FireFox、Chrome等浏览器，则需要说明编码的字符集
+                // 注意filename后面有个*号，在UTF-8后面有两个单引号！
+                builder.header("Content-Disposition", "attachment; filename*=UTF-8''" + filename);
+            }
+            return builder.body(FileUtils.readFileToByteArray(file));
+        } catch (Exception exception) {
+            RestTemplate client = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            HttpEntity<Resource> httpEntity = new HttpEntity<Resource>(headers);
+            ResponseEntity<byte[]> response = client.exchange(book.getBookUrl(), HttpMethod.GET,httpEntity, byte[].class);
+            return response;
         }
-        return builder.body(FileUtils.readFileToByteArray(file));
     }
 
     @PreAuthorize("hasAnyRole('USER','ADMIN','SELLER')")
     @Operation(summary = "书籍内容",
-            description = "根据搜索条件返回相应的书籍分页内容",
-            security = @SecurityRequirement(name = "需要登录"))
+        description = "根据搜索条件返回相应的书籍分页内容",
+        security = @SecurityRequirement(name = "需要登录"))
     @GetMapping(value = "/content")
     @Hidden
     public CommonResult<String> findContent(@PathVariable(value = "pageNum")int pageNum,@PathVariable(value = "BookId") Long BookId) throws IOException {

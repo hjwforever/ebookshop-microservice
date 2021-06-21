@@ -5,20 +5,24 @@ spring:
     allow-bean-definition-overriding: true
   cloud:
     gateway:
-#      default-filters:
-#        - TokenRelay=
-#      metrics:
-#        enabled: true
-#      discovery:
-#        locator:
-#          enabled: true
-#          lower-case-service-id: true
+      default-filters:
+        - TokenRelay=
+      metrics:
+        enabled: true
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
       routes:
         - id: CONSUMER
           uri: lb://CONSUMER
 #          uri: http://localhost:8081/consumer
           predicates:
-            - Path=/consumer/**
+            - Path=/api/**
+#          predicates:
+#            - Path=/api/**
+#          filters:
+#            - RewritePath=/api/(?<segment>.*), /consumer/$\{segment}
             #        - id: SHOPPING-CART-SERVICE
             #          uri: lb://SHOPPING-CART-SERVICE
             #          predicates:
@@ -29,17 +33,17 @@ spring:
 #      client:
 #        provider:
 #          keycloak:
-#            issuer-uri: http://localhost:8180/auth/realms/book-service
+#            issuer-uri: http://localhost:8180/auth/realms/product_service
 #        registration:
 #          spring-gateway:
 #            authorization-grant-type: authorization_code
 #            client-id: spring-gateway
-#            client-secret: 8baaec35-2fae-42ff-a0d2-335aefdf6c5a
+#            client-secret: 323ad3d5-b881-4204-8151-d96823077af0
 #            provider: keycloak
-#            redirect-uri: http://localhost:8080/login/oauth2/code/spring-gateway
+#      #            redirect-uri: http://localhost:8080/login/oauth2/code/spring-gateway
 #      resourceserver:
 #        jwt:
-#          jwk-set-uri: http://localhost:8180/auth/realms/book-service/protocol/openid-connect/certs
+#          jwk-set-uri: http://localhost:8180/auth/realms/product_service/protocol/openid-connect/certs
 
 server:
   port: 8080

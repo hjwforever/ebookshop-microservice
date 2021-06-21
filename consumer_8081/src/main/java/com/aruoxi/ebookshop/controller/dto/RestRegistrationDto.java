@@ -1,13 +1,16 @@
 package com.aruoxi.ebookshop.controller.dto;
 
+import com.aruoxi.ebookshop.domain.Role;
 import com.aruoxi.ebookshop.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Data;
 
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,6 +42,9 @@ public class RestRegistrationDto {
     private String password;
     @Schema(description = "角色数组", type = "Array")
     private Set<String> roles;
+
+    public RestRegistrationDto() {
+    }
 
     public RestRegistrationDto(@NotEmpty @Size(min = 4, max = 20) String username, @Email @NotEmpty String email, @NotEmpty @Size(min = 6, max = 16) String password, Set<String> roles) {
         this.username = username;

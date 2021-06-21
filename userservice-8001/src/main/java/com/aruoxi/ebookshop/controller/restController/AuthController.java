@@ -101,21 +101,21 @@ public class AuthController {
 									schema = @Schema(implementation = RestRegistrationDto.class)))})
 	@PostMapping(value = {"/signup","/register"})
 //	public CommonResult<Object> registerUser(@Valid @RequestBody RestRegistrationDto registrationDto, BindingResult result)
-	public CommonResult<Object> registerUser(@Valid @RequestBody registerUserDto registeruserDto)
+	public CommonResult<Object> registerUser(@RequestBody RestRegistrationDto registrationDto)
 	{
-		if (registeruserDto.result.hasErrors()) {
-			return CommonResult.fail(HttpStatus.BAD_REQUEST, Objects.requireNonNull(registeruserDto.result.getFieldError()).getField() + registeruserDto.result.getFieldError().getDefaultMessage());
-		}
+//		if (registrationDto.result.hasErrors()) {
+//			return CommonResult.fail(HttpStatus.BAD_REQUEST, Objects.requireNonNull(registeruserDto.result.getFieldError()).getField() + registeruserDto.result.getFieldError().getDefaultMessage());
+//		}
 
-		if (userRepository.existsByUsername(registeruserDto.registrationDto.getUsername())) {
+		if (userRepository.existsByUsername(registrationDto.getUsername())) {
 			return CommonResult.fail(HttpStatus.BAD_REQUEST,"Error: Username is already taken!");
 		}
 
-		if (userRepository.existsByEmail(registeruserDto.registrationDto.getEmail())) {
+		if (userRepository.existsByEmail(registrationDto.getEmail())) {
 			return CommonResult.fail(HttpStatus.BAD_REQUEST,"Error: Email is already in use!");
 		}
 
-		User user = userService.save(registeruserDto.registrationDto);
+		User user = userService.save(registrationDto);
 
 		if (user == null) {
 			return CommonResult.fail(HttpStatus.BAD_REQUEST,"Error: the user already exists!");
