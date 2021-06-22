@@ -374,14 +374,14 @@ public class RestBookController {
         return CommonResult.success();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping(path = "/{id}")
-    @Operation(summary = "删除书籍",
-        description = "根据id删除书籍",
-        security = @SecurityRequirement(name = "需要admin权限"))
-    public void delete(@PathVariable("id") Long id) {
-        bookService.delete(id);
-    }
+//    @PreAuthorize("hasRole('ADMIN')")
+//    @DeleteMapping(path = "/{id}")
+//    @Operation(summary = "删除书籍",
+//        description = "根据id删除书籍",
+//        security = @SecurityRequirement(name = "需要admin权限"))
+//    public void delete(@PathVariable("id") Long id) {
+//        bookService.delete(id);
+//    }
 
 //    @PreAuthorize("hasAnyRole('USER','ADMIN','SELLER')")
     @ResponseBody

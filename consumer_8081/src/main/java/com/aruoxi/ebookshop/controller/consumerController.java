@@ -35,6 +35,9 @@ public class consumerController {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private KafkaSender sender;
+
     @GetMapping("/api/books")
     public CommonResult findAll(BookSearchDto search) {
         return restTemplate.getForObject(REST_URL_BOOKSERVICE+"/api/books",CommonResult.class);
@@ -68,7 +71,8 @@ public class consumerController {
 
     @DeleteMapping("/api/books/{id}")
     void delete(@PathVariable("id") Long id){
-        restTemplate.delete(REST_URL_BOOKSERVICE+"/api/books/"+id,id);
+        sender.sendData(id);
+       // restTemplate.delete(REST_URL_BOOKSERVICE+"/api/books/"+id,id);
     }
 
     @GetMapping(value = "/api/books/content")
