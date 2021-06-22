@@ -36,6 +36,7 @@
 		<spring-cloud.version>2020.0.3</spring-cloud.version>
 		<spring-boot.version>2.4.5</spring-boot.version>
 		<keycloak-adapter.version>13.0.1</keycloak-adapter.version>
+		<springcloud.openfeign.version>2.1.1.RELEASE</springcloud.openfeign.version>
 		<hutool-version>5.3.5</hutool-version>
 	</properties>
 

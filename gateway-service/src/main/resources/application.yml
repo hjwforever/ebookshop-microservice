@@ -28,25 +28,26 @@ spring:
             #          predicates:
             #            - Path=/api/cart/**
 
-#  security:
-#    oauth2:
-#      client:
-#        provider:
-#          keycloak:
-#            issuer-uri: http://localhost:8180/auth/realms/product_service
-#        registration:
-#          spring-gateway:
-#            authorization-grant-type: authorization_code
-#            client-id: spring-gateway
-#            client-secret: 323ad3d5-b881-4204-8151-d96823077af0
-#            provider: keycloak
-#      #            redirect-uri: http://localhost:8080/login/oauth2/code/spring-gateway
-#      resourceserver:
-#        jwt:
-#          jwk-set-uri: http://localhost:8180/auth/realms/product_service/protocol/openid-connect/certs
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8180/auth/realms/product_service
+        registration:
+          spring-gateway:
+            authorization-grant-type: authorization_code
+            client-id: spring-gateway
+            client-secret: 323ad3d5-b881-4204-8151-d96823077af0
+            provider: keycloak
+#            redirect-uri: http://localhost:8080/login/oauth2/code/spring-gateway
+            redirect-uri: http://localhost:8080/#/dashboard
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8180/auth/realms/product_service/protocol/openid-connect/certs
 
 server:
-  port: 8080
+  port: 8082
 
 eureka:
   client:

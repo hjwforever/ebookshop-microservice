@@ -3,18 +3,20 @@ package com.aruoxi.ebookshop.controller.restController.dto;
 import com.aruoxi.ebookshop.controller.dto.BookUploadDto;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+
 public class FileDto {
 
-    private MultipartFile uploadFile;
+    private File uploadFile;
     private BookUploadDto uploadBookInfo;
     private String userAgent;
     private Integer bookId;
 
-    public MultipartFile getUploadFile() {
+    public File getUploadFile() {
         return uploadFile;
     }
 
-    public void setUploadFile(MultipartFile uploadFile) {
+    public void setUploadFile(File uploadFile) {
         this.uploadFile = uploadFile;
     }
 

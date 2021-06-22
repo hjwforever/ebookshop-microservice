@@ -7,7 +7,7 @@
 		<groupId>com.aruoxi.microservice</groupId>
 		<artifactId>com.aruoxi.ebookshop-microservice</artifactId>
 		<version>1.0.0</version>
-		        <relativePath/> <!-- lookup parent from repository -->
+		<!--        <relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
 	</parent>
 
 	<groupId>com.aruoxi.microservice.registry</groupId>

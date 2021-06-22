@@ -228,7 +228,7 @@ public class RestBookController {
     }
 
     // 上传文件会自动绑定到MultipartFile中
-    @PreAuthorize("hasAnyRole('SELLER','ADMIN')")
+//    @PreAuthorize("hasAnyRole('SELLER','ADMIN')")
     @PostMapping(value = "/upload")
     @ResponseBody
     @Operation(summary = "上传书籍",
@@ -242,7 +242,7 @@ public class RestBookController {
 //        log.info("jsonpObject = " + jsonpObject);
 
         // 如果文件不为空，写入上传路径
-        if (!fileDto.getUploadFile().isEmpty()) {
+        if (fileDto.getUploadFile().exists()) {
             // 获取资源目录
 
 //            String uploadFilePath = this.getServletContext().getRealPath("/WEB-INF/upload");
@@ -266,7 +266,7 @@ public class RestBookController {
             }
 
             // 获取原始的名字  original:最初的，起始的  方法是得到原来的文件名在客户机的文件系统名称
-            String oldName = fileDto.getUploadFile().getOriginalFilename();
+            String oldName = fileDto.getUploadFile().getName();
             // 第一个.前的名字
             String OriginalFilename = oldName.substring(0, oldName.indexOf('.'));
             LOG.info("-----------文件原始的名字【" + oldName + "】-----------");
@@ -283,7 +283,7 @@ public class RestBookController {
                 // 上传云端
 //                Map<String, Object> meta = new HashMap<String, Object>();
 //                meta.put("mime_type", "text/plain");
-                AVFile cloudFile = new AVFile(oldName, fileDto.getUploadFile().getBytes());
+                AVFile cloudFile = new AVFile(oldName, fileDto.getUploadFile());
                 cloudFile.setMimeType("text/plain");
                 cloudFile.saveInBackground(true).subscribe(new Observer<AVFile>() {
 
@@ -310,7 +310,8 @@ public class RestBookController {
                 //构建真实的文件路径
                 File newFile = new File(file.getAbsolutePath() + File.separator + newName);
                 //转存文件到指定路径，如果文件名重复的话，将会覆盖掉之前的文件,这里是把文件上传到 “绝对路径”
-                fileDto.getUploadFile().transferTo(newFile);
+//                fileDto.getUploadFile().transferTo(newFile);
+                FileUtils.copyFile(fileDto.getUploadFile(),newFile);
 //                String filePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/uploadFile/" + format + newName;
 //                String filePath = (file.getCanonicalPath() + "/" + newName).replace('\\','/');
                 String filePath = (file.getPath() + File.separator + newName);
